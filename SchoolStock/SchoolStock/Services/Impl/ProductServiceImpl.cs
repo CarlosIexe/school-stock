@@ -30,7 +30,7 @@ namespace SchoolStock.Services.Impl
 
         public List<ProductDTO> FindAll()
         {
-            return _converter.ParseList(_repository.FindAll());
+            return _converter.Parse(_repository.FindAll());
         }
 
         public ProductDTO FindById(long id)
