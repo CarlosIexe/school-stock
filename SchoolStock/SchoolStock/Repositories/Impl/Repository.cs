@@ -33,12 +33,12 @@ namespace SchoolStock.Repositories.Impl
 
         public List<T> FindAll()
         {
-            throw new NotImplementedException();
+            return _dataset.ToList();
         }
 
         public T FindById(long id)
         {
-            throw new NotImplementedException();
+            return _dataset.Find(id);
         }
 
         public T Update(T entity)
