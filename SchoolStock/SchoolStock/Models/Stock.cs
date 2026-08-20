@@ -1,8 +1,7 @@
 ﻿namespace SchoolStock.Models
 {
-    public class Stock
+    public class Stock : Base.BaseEntity
     {
-        public long Id { get; set; }
 
         public long ProductId { get; set; }
 

@@ -1,11 +1,7 @@
-﻿using System.Collections;
-
-namespace SchoolStock.Models
+﻿namespace SchoolStock.Models
 {
-    public class School
+    public class School : Base.BaseEntity
     {
-        public long Id { get; set; }
-
         public string Name { get; set; } = string.Empty;
 
         public string? InepCode { get; set; }

@@ -1,8 +1,6 @@
-﻿using SchoolStock.Models.Base;
-
-namespace SchoolStock.Models
+﻿namespace SchoolStock.Models
 {
-    public class Category : BaseEntity
+    public class Category : Base.BaseEntity
     {
 
         public string Name { get; set; } = string.Empty;

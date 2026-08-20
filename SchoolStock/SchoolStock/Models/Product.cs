@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace SchoolStock.Models
+﻿namespace SchoolStock.Models
 {
     public class Product : Base.BaseEntity
     {
