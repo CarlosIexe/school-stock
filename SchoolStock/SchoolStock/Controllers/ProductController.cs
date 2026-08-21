@@ -5,7 +5,7 @@ using SchoolStock.Services;
 namespace SchoolStock.Controllers
 {
     [ApiController]
-    [Route("api/products")]
+    [Route("api/product")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productServices;
