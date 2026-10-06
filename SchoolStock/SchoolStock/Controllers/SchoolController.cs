@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SchoolStock.Data.DTO;
 using SchoolStock.Services;
 
@@ -33,6 +34,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy="CanManageSchools")]
         public IActionResult Create([FromBody] SchoolDTO school)
         {
             if (school == null)
@@ -44,6 +46,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy ="CanManageSchools")]
         public IActionResult Update([FromBody] SchoolDTO school)
         {
             if (school == null)
@@ -55,6 +58,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles ="CanDelete")]
         public IActionResult Delete(long id)
         {
             _service.Delete(id);

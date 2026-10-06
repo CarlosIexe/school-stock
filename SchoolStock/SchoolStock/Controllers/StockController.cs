@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SchoolStock.Services;
 
 namespace SchoolStock.Controllers
@@ -43,6 +44,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("entry")]
+        [Authorize(Policy ="CanManageStock")]
         public IActionResult Add(
             [FromQuery] long productId,
             [FromQuery] long? schoolId,
@@ -67,6 +69,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("remove")]
+        [Authorize(Policy ="CanManageStock")]
         public IActionResult Remove(
             [FromQuery] long productId,
             [FromQuery] long? schoolId,
@@ -91,6 +94,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("transfer")]
+        [Authorize(Policy ="CanManageStock")]
         public IActionResult Transfer(
             [FromQuery] long productId,
             [FromQuery] long? originSchoolId,

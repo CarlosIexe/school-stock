@@ -1,11 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SchoolStock.Data.DTO;
 using SchoolStock.Services;
 
+
+//GET       -> Admin / Gestor / User
+//POST      -> Admin / Gestor
+//PUT       -> Admin / Gestor
+//DELETE    -> Admin
 namespace SchoolStock.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _service;
@@ -14,7 +21,7 @@ namespace SchoolStock.Controllers
         {
             _service = service;
         }
-
+ 
         [HttpGet]
         public IActionResult FindAll()
         {
@@ -32,6 +39,7 @@ namespace SchoolStock.Controllers
             return Ok(category);
         }
 
+        [Authorize(Policy = "CanManageCategories")]
         [HttpPost]
         public IActionResult Create([FromBody] CategoryDTO category)
         {
@@ -43,6 +51,7 @@ namespace SchoolStock.Controllers
             return Ok(createdCategory);
         }
 
+        [Authorize(Policy = "CanManageCategories")]
         [HttpPut]
         public IActionResult Update([FromBody] CategoryDTO category)
         {
@@ -54,6 +63,7 @@ namespace SchoolStock.Controllers
             return Ok(updatedCategory);
         }
 
+        [Authorize(Policy = "CanDelete")]
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {

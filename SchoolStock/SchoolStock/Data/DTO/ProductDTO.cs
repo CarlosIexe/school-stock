@@ -18,6 +18,6 @@
 
         public long CategoryId { get; set; }
 
-        public bool Active { get; set; }
+        public bool Active { get; set; } = true;
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SchoolStock.Data.DTO;
 using SchoolStock.Services;
 
@@ -33,6 +34,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy="CanManageProducts")]
         public IActionResult Post([FromBody] ProductDTO product)
         {
             var createdProduct = _productServices.Create(product);
@@ -41,6 +43,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy ="CanManageProducts")]
         public IActionResult Put([FromBody] ProductDTO product)
         {
             var createdProduct = _productServices.Update(product);
@@ -49,6 +52,7 @@ namespace SchoolStock.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles="CanDelete")]
         public async Task<IActionResult> Delete(long id)
         {
             _productServices.Delete(id);
