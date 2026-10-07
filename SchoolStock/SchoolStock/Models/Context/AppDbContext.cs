@@ -17,5 +17,16 @@ namespace SchoolStock.Models.Context
         public DbSet<School> Schools { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
+
+
+        //Proteção para impedir registros duplicados
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Stock>()
+                .HasIndex(s => new { s.ProductId, s.SchoolId })
+                .IsUnique();
+        }
     }
 }

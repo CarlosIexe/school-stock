@@ -15,8 +15,6 @@ namespace SchoolStock.Services.Impl
 
         private readonly StockConverter _stockConverter;
 
-        private readonly StockMovementConverter _movementConverter;
-
         private readonly AppDbContext _context;
 
 
@@ -32,8 +30,6 @@ namespace SchoolStock.Services.Impl
             _context = context;
 
             _stockConverter = new StockConverter();
-
-            _movementConverter = new StockMovementConverter();
         }
 
 
@@ -58,88 +54,125 @@ namespace SchoolStock.Services.Impl
 
         public StockDTO Add(long productId, long? schoolId, int quantity)
         {
-            if (quantity <= 0) throw new ArgumentException("A quantidade deve ser maior que zero.");
+            if (quantity <= 0)
+                throw new ArgumentException("A quantidade deve ser maior que zero.");
 
-            var stock = _stockRepository.Find(productId, schoolId);
+            ValidateProduct(productId);
+            ValidateSchool(schoolId);
 
+            using var transaction = _context.Database.BeginTransaction();
 
-            if (stock == null)
+            try
             {
-                stock = new Stock
+                var stock = _stockRepository.Find(productId, schoolId);
+
+                if (stock == null)
                 {
-                    ProductId = productId,
-                    SchoolId = schoolId,
-                    Quantity = quantity,
-                    LastUpdatedAt = DateTime.UtcNow
-                };
+                    stock = new Stock
+                    {
+                        ProductId = productId,
+                        SchoolId = schoolId,
+                        Quantity = quantity,
+                        LastUpdatedAt = DateTime.UtcNow
+                    };
 
-                stock = _stockRepository.Create(stock);
+                    stock = _stockRepository.Create(stock);
+                }
+                else
+                {
+                    stock.Quantity += quantity;
+                    stock.LastUpdatedAt = DateTime.UtcNow;
+
+                    stock = _stockRepository.Update(stock);
+                }
+
+                RegisterMovement(
+                    productId,
+                    MovementType.Entry,
+                    quantity,
+                    null,
+                    schoolId,
+                    "Entrada de estoque"
+                );
+
+                transaction.Commit();
+
+                return _stockConverter.Parse(stock);
             }
-            else
+            catch
             {
-                stock.Quantity += quantity;
-
-                stock.LastUpdatedAt = DateTime.UtcNow;
-
-                stock = _stockRepository.Update(stock);
+                transaction.Rollback();
+                throw;
             }
-
-
-            RegisterMovement(
-                productId,
-                MovementType.Entry,
-                quantity,
-                null,
-                schoolId,
-                "Entrada de estoque"
-            );
-
-
-            return _stockConverter.Parse(stock);
         }
 
 
-        public StockDTO Remove( long productId, long? schoolId, int quantity)
+        public StockDTO Remove(long productId, long? schoolId, int quantity)
         {
-            if (quantity <= 0) throw new ArgumentException("A quantidade deve ser maior que zero.");
+            if (quantity <= 0)
+                throw new ArgumentException("A quantidade deve ser maior que zero.");
 
-            var stock = _stockRepository.Find(productId, schoolId);
+            ValidateProduct(productId);
+            ValidateSchool(schoolId);
 
+            using var transaction = _context.Database.BeginTransaction();
 
-            if (stock == null) throw new Exception("Estoque não encontrado.");
+            try
+            {
+                var stock = _stockRepository.Find(productId, schoolId);
 
+                if (stock == null)
+                    throw new Exception("Estoque não encontrado.");
 
-            if (stock.Quantity < quantity) throw new Exception("Quantidade insuficiente em estoque.");
+                if (stock.Quantity < quantity)
+                    throw new Exception("Quantidade insuficiente em estoque.");
 
+                stock.Quantity -= quantity;
+                stock.LastUpdatedAt = DateTime.UtcNow;
 
-            stock.Quantity -= quantity;
+                stock = _stockRepository.Update(stock);
 
-            stock.LastUpdatedAt = DateTime.UtcNow;
+                RegisterMovement(
+                    productId,
+                    MovementType.Consumption,
+                    quantity,
+                    schoolId,
+                    null,
+                    "Saída de estoque"
+                );
 
+                transaction.Commit();
 
-            stock = _stockRepository.Update(stock);
-
-
-            RegisterMovement(
-                productId,
-                MovementType.Consumption,
-                quantity,
-                schoolId,
-                null,
-                "Saída de estoque"
-            );
-
-
-            return _stockConverter.Parse(stock);
+                return _stockConverter.Parse(stock);
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
 
         public void Transfer(long productId, long? originSchoolId, long? destinationSchoolId, int quantity)
         {
-            if (quantity <= 0) throw new ArgumentException("A quantidade deve ser maior que zero.");
+            if (quantity <= 0)
+                throw new ArgumentException(
+                    "A quantidade deve ser maior que zero."
+                );
 
+            if (originSchoolId == destinationSchoolId)
+                throw new ArgumentException(
+                    "A origem e o destino não podem ser iguais."
+                );
 
-            if (originSchoolId == destinationSchoolId) throw new ArgumentException( "A origem e o destino não podem ser iguais.");
+            if (originSchoolId == null && destinationSchoolId == null)
+                throw new ArgumentException(
+                    "A origem e o destino não podem ser o estoque central."
+                );
+
+            ValidateProduct(productId);
+            ValidateSchool(originSchoolId);
+            ValidateSchool(destinationSchoolId);
 
 
             using var transaction = _context.Database.BeginTransaction();
@@ -243,6 +276,28 @@ namespace SchoolStock.Services.Impl
 
             _movementRepository.Create(movement);
         }
+        private void ValidateProduct(long productId)
+        {
+            var product = _context.Products.Find(productId);
 
+            if (product == null)
+                throw new Exception("Produto não encontrado.");
+
+            if (!product.Active)
+                throw new Exception("O produto está inativo.");
+        }
+
+        private void ValidateSchool(long? schoolId)
+        {
+            if (schoolId == null)
+                return;
+
+            var school = _context.Schools.Find(schoolId.Value);
+
+            if (school == null)
+                throw new Exception("Escola não encontrada.");
+        }
     }
+    
+
 }

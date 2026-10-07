@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolStock.Data.DTO.Stock;
 using SchoolStock.Services;
 
 namespace SchoolStock.Controllers
@@ -44,18 +45,15 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("entry")]
-        [Authorize(Policy ="CanManageStock")]
-        public IActionResult Add(
-            [FromQuery] long productId,
-            [FromQuery] long? schoolId,
-            [FromQuery] int quantity)
+        [Authorize(Policy = "CanManageStock")]
+        public IActionResult Add([FromBody] StockEntryRequest request)
         {
             try
             {
                 var stock = _service.Add(
-                    productId,
-                    schoolId,
-                    quantity);
+                    request.ProductId,
+                    request.SchoolId,
+                    request.Quantity);
 
                 return Ok(stock);
             }
@@ -69,18 +67,15 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("remove")]
-        [Authorize(Policy ="CanManageStock")]
-        public IActionResult Remove(
-            [FromQuery] long productId,
-            [FromQuery] long? schoolId,
-            [FromQuery] int quantity)
+        [Authorize(Policy = "CanManageStock")]
+        public IActionResult Remove([FromBody] StockRemoveRequest request)
         {
             try
             {
                 var stock = _service.Remove(
-                    productId,
-                    schoolId,
-                    quantity);
+                    request.ProductId,
+                    request.SchoolId,
+                    request.Quantity);
 
                 return Ok(stock);
             }
@@ -94,20 +89,16 @@ namespace SchoolStock.Controllers
         }
 
         [HttpPost("transfer")]
-        [Authorize(Policy ="CanManageStock")]
-        public IActionResult Transfer(
-            [FromQuery] long productId,
-            [FromQuery] long? originSchoolId,
-            [FromQuery] long? destinationSchoolId,
-            [FromQuery] int quantity)
+        [Authorize(Policy = "CanManageStock")]
+        public IActionResult Transfer([FromBody] StockTransferRequest request)
         {
             try
             {
                 _service.Transfer(
-                    productId,
-                    originSchoolId,
-                    destinationSchoolId,
-                    quantity);
+                    request.ProductId,
+                    request.OriginSchoolId,
+                    request.DestinationSchoolId,
+                    request.Quantity);
 
                 return Ok(new
                 {

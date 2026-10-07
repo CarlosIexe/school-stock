@@ -1,6 +1,5 @@
-﻿namespace SchoolStock.Controllers
-{
-    using global::SchoolStock.Services;
+﻿
+    using SchoolStock.Services;
     using Microsoft.AspNetCore.Mvc;
 
     namespace SchoolStock.Controllers
@@ -43,4 +42,4 @@
             }
         }
     }
-}
+
