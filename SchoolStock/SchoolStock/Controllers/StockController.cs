@@ -27,73 +27,45 @@ namespace SchoolStock.Controllers
             long productId,
             [FromQuery] long? schoolId)
         {
-            try
-            {
                 var stock = _service.Find(
                     productId,
                     schoolId);
 
                 return Ok(stock);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new
-                {
-                    message = ex.Message
-                });
-            }
+            
         }
 
         [HttpPost("entry")]
         [Authorize(Policy = "CanManageStock")]
         public IActionResult Add([FromBody] StockEntryRequest request)
         {
-            try
-            {
                 var stock = _service.Add(
                     request.ProductId,
                     request.SchoolId,
                     request.Quantity);
 
                 return Ok(stock);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message
-                });
-            }
+           
         }
 
         [HttpPost("remove")]
         [Authorize(Policy = "CanManageStock")]
         public IActionResult Remove([FromBody] StockRemoveRequest request)
         {
-            try
-            {
+           
                 var stock = _service.Remove(
                     request.ProductId,
                     request.SchoolId,
                     request.Quantity);
 
                 return Ok(stock);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message
-                });
-            }
+           
         }
 
         [HttpPost("transfer")]
         [Authorize(Policy = "CanManageStock")]
         public IActionResult Transfer([FromBody] StockTransferRequest request)
         {
-            try
-            {
                 _service.Transfer(
                     request.ProductId,
                     request.OriginSchoolId,
@@ -104,14 +76,7 @@ namespace SchoolStock.Controllers
                 {
                     message = "Transferência realizada com sucesso."
                 });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message
-                });
-            }
+            
         }
     }
 }

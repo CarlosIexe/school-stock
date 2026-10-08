@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SchoolStock.Data;
+using SchoolStock.Middleware;
 using SchoolStock.Models.Context;
 using SchoolStock.Repositories;
 using SchoolStock.Repositories.Impl;
@@ -115,6 +116,8 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {

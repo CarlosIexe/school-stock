@@ -25,20 +25,12 @@
             [HttpGet("{id}")]
             public IActionResult FindById(long id)
             {
-                try
-                {
+                
                     var movement =
                         _service.FindById(id);
 
                     return Ok(movement);
-                }
-                catch (Exception ex)
-                {
-                    return NotFound(new
-                    {
-                        message = ex.Message
-                    });
-                }
+               
             }
         }
     }

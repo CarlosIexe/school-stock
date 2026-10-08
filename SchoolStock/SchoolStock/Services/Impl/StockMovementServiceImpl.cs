@@ -2,6 +2,7 @@
 using SchoolStock.Data.DTO;
 using SchoolStock.Models;
 using SchoolStock.Repositories;
+using SchoolStock.Exceptions;
 
 namespace SchoolStock.Services.Impl
 {
@@ -32,7 +33,7 @@ namespace SchoolStock.Services.Impl
         {
             var movement = _repository.FindById(id);
 
-            if (movement == null) throw new Exception("Movimentação não encontrada.");
+            if (movement == null) throw new NotFoundException("Movimentação não encontrada.");
 
             return _converter.Parse(movement);
         }

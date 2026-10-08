@@ -43,66 +43,35 @@ public class UserController : ControllerBase
         if (request == null)
             return BadRequest();
 
-        try
-        {
-            var user = await _service.Create(request);
 
-            return Ok(user);
+        var user = await _service.Create(request);
+
+        return Ok(user);
+    
         }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
-        }
-    }
+    
 
     [HttpPut("{id}/role")]
     public async Task<IActionResult> UpdateRole(
         string id,
         [FromBody] UpdateUserRoleRequest request)
     {
+
         if (request == null)
             return BadRequest();
 
-        try
-        {
-            var updated =
-                await _service.UpdateRole(id, request);
+        await _service.UpdateRole(id, request);
 
-            if (!updated)
-                return NotFound();
-
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
-        }
+        return NoContent();
+       
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        try
-        {
-            var deleted = await _service.Delete(id);
+      await _service.Delete(id);
 
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
-        }
+      return NoContent();
+       
     }
 }

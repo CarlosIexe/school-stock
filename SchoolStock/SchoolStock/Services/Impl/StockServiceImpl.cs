@@ -1,5 +1,6 @@
 ﻿using SchoolStock.Data.Converters.Impl;
 using SchoolStock.Data.DTO;
+using SchoolStock.Exceptions;
 using SchoolStock.Models;
 using SchoolStock.Models.Context;
 using SchoolStock.Models.Enums;
@@ -46,7 +47,7 @@ namespace SchoolStock.Services.Impl
             var stock = _stockRepository.Find(productId, schoolId);
 
             if (stock == null)
-                throw new Exception("Estoque não encontrado.");
+                throw new NotFoundException("Estoque não encontrado.");
 
             return _stockConverter.Parse(stock);
         }
@@ -122,10 +123,10 @@ namespace SchoolStock.Services.Impl
                 var stock = _stockRepository.Find(productId, schoolId);
 
                 if (stock == null)
-                    throw new Exception("Estoque não encontrado.");
+                    throw new NotFoundException("Estoque não encontrado.");
 
                 if (stock.Quantity < quantity)
-                    throw new Exception("Quantidade insuficiente em estoque.");
+                    throw new ConflictException("Quantidade insuficiente em estoque.");
 
                 stock.Quantity -= quantity;
                 stock.LastUpdatedAt = DateTime.UtcNow;
@@ -182,10 +183,10 @@ namespace SchoolStock.Services.Impl
                 var originStock =_stockRepository.Find(productId, originSchoolId);
 
 
-                if (originStock == null) throw new Exception("Estoque de origem não encontrado.");
+                if (originStock == null) throw new NotFoundException("Estoque de origem não encontrado.");
 
 
-                if (originStock.Quantity < quantity) throw new Exception("Quantidade insuficiente no estoque de origem.");
+                if (originStock.Quantity < quantity) throw new ConflictException("Quantidade insuficiente no estoque de origem.");
 
 
                 originStock.Quantity -= quantity;
@@ -281,10 +282,10 @@ namespace SchoolStock.Services.Impl
             var product = _context.Products.Find(productId);
 
             if (product == null)
-                throw new Exception("Produto não encontrado.");
+                throw new NotFoundException("Produto não encontrado.");
 
             if (!product.Active)
-                throw new Exception("O produto está inativo.");
+                throw new BusinessException("O produto está inativo.");
         }
 
         private void ValidateSchool(long? schoolId)
@@ -295,7 +296,7 @@ namespace SchoolStock.Services.Impl
             var school = _context.Schools.Find(schoolId.Value);
 
             if (school == null)
-                throw new Exception("Escola não encontrada.");
+                throw new NotFoundException("Escola não encontrada.");
         }
     }
     

@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using SchoolStock.Data.DTO.User;
-using SchoolStock.Services;
+using SchoolStock.Exceptions;
 
 namespace SchoolStock.Services.Impl;
 
@@ -49,7 +49,7 @@ public class UserServiceImpl : IUserService
 
         if (existingUser != null)
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
                 "Já existe um usuário cadastrado com este e-mail."
             );
         }
@@ -73,7 +73,7 @@ public class UserServiceImpl : IUserService
                 result.Errors.Select(e => e.Description)
             );
 
-            throw new InvalidOperationException(errors);
+            throw new BusinessException(errors);
         }
 
         await _userManager.AddClaimAsync(
@@ -95,7 +95,7 @@ public class UserServiceImpl : IUserService
         {
             await _userManager.DeleteAsync(user);
 
-            throw new InvalidOperationException(
+            throw new BusinessException(
                 "Role inválida."
             );
         }
@@ -115,7 +115,9 @@ public class UserServiceImpl : IUserService
         var user = await _userManager.FindByIdAsync(id);
 
         if (user == null)
-            return false;
+            throw new NotFoundException(
+                "Usuário não encontrado."
+            );
 
         var validRoles = new[]
         {
@@ -126,7 +128,7 @@ public class UserServiceImpl : IUserService
 
         if (!validRoles.Contains(request.Role))
         {
-            throw new InvalidOperationException(
+            throw new BusinessException(
                 "Role inválida."
             );
         }
@@ -143,7 +145,7 @@ public class UserServiceImpl : IUserService
                 );
 
             if (!removeResult.Succeeded)
-                throw new InvalidOperationException(
+                throw new BusinessException(
                     "Não foi possível remover as roles atuais."
                 );
         }
@@ -156,7 +158,7 @@ public class UserServiceImpl : IUserService
 
         if (!addResult.Succeeded)
         {
-            throw new InvalidOperationException(
+            throw new BusinessException(
                 string.Join(
                     "; ",
                     addResult.Errors.Select(e => e.Description)
@@ -172,13 +174,15 @@ public class UserServiceImpl : IUserService
         var user = await _userManager.FindByIdAsync(id);
 
         if (user == null)
-            return false;
+            throw new NotFoundException(
+                "Usuário não encontrado."
+            );
 
         var result = await _userManager.DeleteAsync(user);
 
         if (!result.Succeeded)
         {
-            throw new InvalidOperationException(
+            throw new BusinessException(
                 string.Join(
                     "; ",
                     result.Errors.Select(e => e.Description)
